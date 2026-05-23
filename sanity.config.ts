@@ -3,12 +3,23 @@ import { structureTool } from 'sanity/structure';
 import { visionTool } from '@sanity/vision';
 import schemas from './sanity/schemas/index';
 
+// When embedded in Astro, env vars are exposed via import.meta.env.
+// The studio config runs in both Node (build) and browser (runtime) contexts,
+// so we fall back to a hardcoded placeholder that you replace here if needed.
+const projectId = (import.meta as any)?.env?.PUBLIC_SANITY_PROJECT_ID
+  ?? process.env.PUBLIC_SANITY_PROJECT_ID
+  ?? 'REPLACE_WITH_YOUR_PROJECT_ID';
+
+const dataset = (import.meta as any)?.env?.PUBLIC_SANITY_DATASET
+  ?? process.env.PUBLIC_SANITY_DATASET
+  ?? 'production';
+
 export default defineConfig({
   name: 'pheroguide',
   title: 'PheroGuide CMS',
 
-  projectId: process.env.PUBLIC_SANITY_PROJECT_ID!,
-  dataset: process.env.PUBLIC_SANITY_DATASET || 'production',
+  projectId,
+  dataset,
 
   plugins: [
     structureTool({

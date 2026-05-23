@@ -12,6 +12,7 @@
     "@astrojs/sitemap": "^3.1.0",
     "@sanity/astro": "^1.1.0",
     "@sanity/image-url": "^1.0.2",
+    "@sanity/vision": "^3.30.0",
     "@portabletext/to-html": "^2.0.2",
     "astro": "^4.5.0",
     "sanity": "^3.30.0"
