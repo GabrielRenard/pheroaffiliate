@@ -1,0 +1,205 @@
+---
+import StarRating from './StarRating.astro';
+import type { ProductCard } from '../types';
+
+export interface Props {
+  products: ProductCard[];
+}
+
+const { products } = Astro.props;
+
+const typeLabels: Record<string, string> = {
+  edp: 'Eau de Parfum',
+  edt: 'Eau de Toilette',
+  oil: 'Oil',
+  spray_unscented: 'Unscented',
+  spray_scented: 'Scented',
+  cologne: 'Cologne',
+  body_lotion: 'Body Lotion',
+};
+
+const priceRangeLabels: Record<string, string> = {
+  budget: 'Budget',
+  mid: 'Mid-range',
+  premium: 'Premium',
+  luxury: 'Luxury',
+};
+---
+
+<div class="comparison-table-wrap" role="region" aria-label="Product comparison">
+  <table class="comparison-table">
+    <caption class="sr-only">Product comparison table</caption>
+    <thead>
+      <tr>
+        <th scope="col">Feature</th>
+        {products.map((p) => (
+          <th scope="col">
+            <a href={`/products/${p.slug}/`} class="compare-product-link">
+              {p.featuredImageUrl && (
+                <img src={p.featuredImageUrl} alt={p.name} class="compare-img" loading="lazy" />
+              )}
+              <span class="compare-product-name">{p.name}</span>
+              <span class="compare-product-brand">{p.brand}</span>
+            </a>
+          </th>
+        ))}
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <th scope="row">Our Rating</th>
+        {products.map((p) => (
+          <td>
+            {p.reviewScore !== undefined && p.reviewScore !== null ? (
+              <StarRating score={p.reviewScore} size="sm" />
+            ) : (
+              <span class="na">N/A</span>
+            )}
+          </td>
+        ))}
+      </tr>
+      <tr>
+        <th scope="row">Type</th>
+        {products.map((p) => (
+          <td>{p.productType ? (typeLabels[p.productType] || p.productType) : '—'}</td>
+        ))}
+      </tr>
+      <tr>
+        <th scope="row">Audience</th>
+        {products.map((p) => (
+          <td class="capitalize">{p.intendedAudience || '—'}</td>
+        ))}
+      </tr>
+      <tr>
+        <th scope="row">Price Range</th>
+        {products.map((p) => (
+          <td>{p.priceRange ? (priceRangeLabels[p.priceRange] || p.priceRange) : (p.price ? `~$${p.price}` : '—')}</td>
+        ))}
+      </tr>
+      <tr class="cta-row">
+        <th scope="row">Buy</th>
+        {products.map((p) => (
+          <td>
+            <a
+              href={p.affiliateUrl}
+              class="btn btn-primary btn-sm"
+              rel="nofollow noopener noreferrer"
+              target="_blank"
+            >
+              Check Price →
+            </a>
+          </td>
+        ))}
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<style>
+  .comparison-table-wrap {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin: 1.5rem 0;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--color-border);
+  }
+
+  .comparison-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+    min-width: 500px;
+  }
+
+  .comparison-table thead th {
+    background: var(--color-accent-light);
+    padding: 0.75rem 1rem;
+    vertical-align: top;
+    border-bottom: 2px solid var(--color-accent);
+  }
+
+  .comparison-table thead th:first-child {
+    width: 130px;
+    min-width: 100px;
+    background: var(--color-bg);
+    border-right: 1px solid var(--color-border);
+  }
+
+  .compare-product-link {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.4rem;
+    text-decoration: none;
+    color: var(--color-text);
+  }
+
+  .compare-img {
+    width: 72px;
+    height: 72px;
+    object-fit: cover;
+    border-radius: var(--radius);
+    border: 1px solid var(--color-border);
+  }
+
+  .compare-product-name {
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-align: center;
+    line-height: 1.3;
+  }
+
+  .compare-product-brand {
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+    text-align: center;
+  }
+
+  .comparison-table tbody th,
+  .comparison-table tbody td {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--color-border);
+    vertical-align: middle;
+  }
+
+  .comparison-table tbody th {
+    font-weight: 600;
+    color: var(--color-text-muted);
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    background: var(--color-bg);
+    border-right: 1px solid var(--color-border);
+    text-align: left;
+  }
+
+  .comparison-table tbody td {
+    text-align: center;
+  }
+
+  .comparison-table tbody tr:last-child th,
+  .comparison-table tbody tr:last-child td {
+    border-bottom: none;
+  }
+
+  .comparison-table tbody tr:hover td {
+    background: #fafaf8;
+  }
+
+  .cta-row td {
+    padding: 1rem;
+  }
+
+  .btn-sm {
+    padding: 0.4rem 0.875rem;
+    font-size: 0.8rem;
+  }
+
+  .capitalize { text-transform: capitalize; }
+
+  .na {
+    color: var(--color-text-muted);
+    font-size: 0.8rem;
+  }
+</style>

@@ -1,0 +1,74 @@
+---
+export interface Props {
+  score: number;   // 0–10 scale
+  maxScore?: number;
+  showLabel?: boolean;
+  size?: 'sm' | 'md' | 'lg';
+}
+
+const { score, maxScore = 10, showLabel = true, size = 'md' } = Astro.props;
+
+// Convert to 0–5 star scale for display
+const stars5 = (score / maxScore) * 5;
+const fullStars = Math.floor(stars5);
+const hasHalf = stars5 - fullStars >= 0.4;
+const emptyStars = 5 - fullStars - (hasHalf ? 1 : 0);
+
+const label = score.toFixed(1);
+const colorClass = score >= 8 ? 'score-excellent' : score >= 6 ? 'score-good' : score >= 4 ? 'score-average' : 'score-poor';
+---
+
+<div class={`star-rating star-rating--${size}`} aria-label={`Rating: ${label} out of ${maxScore}`} role="img">
+  <div class="stars" aria-hidden="true">
+    {Array.from({ length: fullStars }, () => <span class="star star-full">★</span>)}
+    {hasHalf && <span class="star star-half">★</span>}
+    {Array.from({ length: emptyStars }, () => <span class="star star-empty">★</span>)}
+  </div>
+  {showLabel && (
+    <span class={`score-badge ${colorClass}`}>{label}<span class="score-max">/{maxScore}</span></span>
+  )}
+</div>
+
+<style>
+  .star-rating {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  .stars {
+    display: flex;
+    gap: 0.05rem;
+    line-height: 1;
+  }
+
+  .star { font-style: normal; }
+  .star-full  { color: #f59e0b; }
+  .star-half  { color: #f59e0b; opacity: 0.65; }
+  .star-empty { color: #d1cfc9; }
+
+  .star-rating--sm .stars { font-size: 0.9rem; }
+  .star-rating--md .stars { font-size: 1.1rem; }
+  .star-rating--lg .stars { font-size: 1.4rem; }
+
+  .score-badge {
+    font-weight: 700;
+    font-size: 0.9rem;
+    padding: 0.15rem 0.5rem;
+    border-radius: 999px;
+  }
+
+  .score-max {
+    font-weight: 400;
+    opacity: 0.65;
+    font-size: 0.8em;
+  }
+
+  .score-excellent { background: #d1fae5; color: #065f46; }
+  .score-good      { background: #dbeafe; color: #1e3a8a; }
+  .score-average   { background: #fef3c7; color: #78350f; }
+  .score-poor      { background: #fee2e2; color: #7f1d1d; }
+
+  .star-rating--sm .score-badge { font-size: 0.8rem; }
+  .star-rating--lg .score-badge { font-size: 1.05rem; }
+</style>

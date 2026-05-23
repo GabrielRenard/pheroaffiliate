@@ -1,0 +1,445 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Hero from '../components/Hero.astro';
+import ProductCard from '../components/ProductCard.astro';
+import { sanityFetch } from '../lib/sanity';
+import { homePageQuery } from '../lib/queries';
+import { buildMetadata } from '../utils/metadata';
+import { buildBreadcrumbSchema, schemaToScript } from '../utils/structuredData';
+
+const data = await sanityFetch<any>(homePageQuery);
+
+const {
+  featuredProducts = [],
+  latestGuides = [],
+  bestLists = [],
+  categories = [],
+  settings = {},
+} = data || {};
+
+const meta = buildMetadata({
+  title: settings?.siteName || 'PheroGuide',
+  description:
+    settings?.siteTagline ||
+    'Independent reviews and comparisons of pheromone perfumes, colognes, and scented products. Helping you make an informed choice.',
+  path: '/',
+  type: 'website',
+});
+
+const breadcrumbs = buildBreadcrumbSchema([{ name: 'Home', url: '/' }]);
+---
+
+<BaseLayout meta={meta} schemas={[breadcrumbs]}>
+  <!-- Hero -->
+  <Hero
+    title="Find the Right Pheromone Fragrance"
+    subtitle="Independent reviews, expert comparisons, and honest buying guides — so you can choose with confidence, not hype."
+    ctaLabel="Browse Top Picks →"
+    ctaHref="/best/best-pheromone-colognes-for-men/"
+    secondaryCtaLabel="How Pheromones Work"
+    secondaryCtaHref="/guides/how-pheromones-work/"
+    badge="Evidence-Based Reviews"
+  />
+
+  <!-- Trust signals -->
+  <section class="trust-strip section-sm">
+    <div class="container trust-inner">
+      {[
+        { icon: '🔬', label: 'Research-Backed' },
+        { icon: '🧾', label: 'Transparent Affiliate Policy' },
+        { icon: '✏️', label: 'Independent Editorial Team' },
+        { icon: '🔄', label: 'Regularly Updated' },
+      ].map((item) => (
+        <div class="trust-item">
+          <span class="trust-icon">{item.icon}</span>
+          <span>{item.label}</span>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <!-- Featured Reviews -->
+  {featuredProducts.length > 0 && (
+    <section class="section" aria-labelledby="featured-heading">
+      <div class="container">
+        <div class="section-header">
+          <h2 id="featured-heading">Top-Rated Products</h2>
+          <a href="/category/pheromone-perfumes/" class="see-all">See all reviews →</a>
+        </div>
+        <div class="grid-auto-3">
+          {featuredProducts.map((product: any, i: number) => (
+            <ProductCard product={product} featured={i === 0} />
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  <!-- Categories -->
+  {categories.length > 0 && (
+    <section class="section categories-section" aria-labelledby="categories-heading">
+      <div class="container">
+        <h2 id="categories-heading">Browse by Category</h2>
+        <div class="categories-grid">
+          {categories.map((cat: any) => (
+            <a href={`/category/${cat.slug}/`} class="category-card">
+              {cat.heroImageUrl && (
+                <img src={cat.heroImageUrl} alt={cat.name} class="category-img" loading="lazy" />
+              )}
+              <div class="category-body">
+                <h3 class="category-name">{cat.name}</h3>
+                {cat.description && <p class="category-desc">{cat.description}</p>}
+              </div>
+            </a>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  <!-- Best-of Lists -->
+  {bestLists.length > 0 && (
+    <section class="section" aria-labelledby="bestlists-heading">
+      <div class="container">
+        <div class="section-header">
+          <h2 id="bestlists-heading">Best-Of Guides</h2>
+          <a href="/best/best-pheromone-colognes-for-men/" class="see-all">View all →</a>
+        </div>
+        <div class="bestlists-grid">
+          {bestLists.map((list: any) => (
+            <a href={`/best/${list.slug}/`} class="bestlist-card">
+              {list.coverImageUrl && (
+                <img src={list.coverImageUrl} alt={list.title} class="bestlist-img" loading="lazy" />
+              )}
+              <div class="bestlist-body">
+                <h3 class="bestlist-title">{list.title}</h3>
+                {list.headline && <p class="bestlist-sub">{list.headline}</p>}
+              </div>
+            </a>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  <!-- Guides -->
+  {latestGuides.length > 0 && (
+    <section class="section" aria-labelledby="guides-heading">
+      <div class="container">
+        <div class="section-header">
+          <h2 id="guides-heading">Educational Guides</h2>
+          <a href="/guides/" class="see-all">All guides →</a>
+        </div>
+        <div class="guides-grid">
+          {latestGuides.map((guide: any) => (
+            <a href={`/guides/${guide.slug}/`} class="guide-card">
+              {guide.coverImageUrl && (
+                <img src={guide.coverImageUrl} alt={guide.title} class="guide-img" loading="lazy" />
+              )}
+              <div class="guide-body">
+                <h3 class="guide-title">{guide.title}</h3>
+                {guide.excerpt && <p class="guide-excerpt">{guide.excerpt}</p>}
+                <span class="guide-read-link">Read guide →</span>
+              </div>
+            </a>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  <!-- About / Trust section -->
+  <section class="section about-strip">
+    <div class="container about-strip-inner">
+      <div>
+        <h2>Why Trust PheroGuide?</h2>
+        <p>
+          We spend real money on real products, test them ourselves, and write honest reviews
+          that acknowledge the limitations of the science alongside the genuine benefits some
+          users report. Pheromone science is nuanced — we don't oversell it.
+        </p>
+        <a href="/about/" class="btn btn-outline">About Our Review Process →</a>
+      </div>
+      <div class="about-bullets">
+        {[
+          'We buy products with our own funds — no pay-to-play reviews.',
+          'We clearly label affiliate links and explain our disclosure policy.',
+          'We update reviews when products or prices change.',
+          'We cite studies where available and flag unsupported claims.',
+        ].map((item) => (
+          <div class="about-bullet">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+            <p>{item}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .trust-strip {
+    background: var(--color-surface);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .trust-inner {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1.5rem 3rem;
+  }
+
+  .trust-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--color-text-muted);
+  }
+
+  .trust-icon {
+    font-size: 1.1rem;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .section-header h2 { margin: 0; }
+
+  .see-all {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--color-accent-dark);
+    text-decoration: none;
+  }
+
+  .see-all:hover { text-decoration: underline; }
+
+  /* Categories */
+  .categories-section {
+    background: var(--color-surface);
+    border-top: 1px solid var(--color-border);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .categories-section h2 { margin-bottom: 1.5rem; }
+
+  .categories-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 1rem;
+  }
+
+  .category-card {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    text-decoration: none;
+    color: var(--color-text);
+    background: var(--color-bg);
+    transition: box-shadow 0.2s, transform 0.2s;
+  }
+
+  .category-card:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+  }
+
+  .category-img {
+    width: 100%;
+    height: 140px;
+    object-fit: cover;
+  }
+
+  .category-body {
+    padding: 1rem;
+  }
+
+  .category-name {
+    font-size: 1rem;
+    font-weight: 700;
+    margin: 0 0 0.25rem;
+  }
+
+  .category-desc {
+    font-size: 0.8125rem;
+    color: var(--color-text-muted);
+    margin: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  /* Best lists */
+  .bestlists-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 1.25rem;
+  }
+
+  .bestlist-card {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    text-decoration: none;
+    color: var(--color-text);
+    background: var(--color-surface);
+    transition: box-shadow 0.2s, transform 0.2s;
+  }
+
+  .bestlist-card:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+  }
+
+  .bestlist-img {
+    width: 100%;
+    height: 160px;
+    object-fit: cover;
+  }
+
+  .bestlist-body {
+    padding: 1rem;
+  }
+
+  .bestlist-title {
+    font-size: 1rem;
+    margin: 0 0 0.3rem;
+    line-height: 1.35;
+  }
+
+  .bestlist-sub {
+    font-size: 0.8125rem;
+    color: var(--color-text-muted);
+    margin: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  /* Guides */
+  .guides-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .guide-card {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    text-decoration: none;
+    color: var(--color-text);
+    background: var(--color-surface);
+    transition: box-shadow 0.2s, transform 0.2s;
+  }
+
+  .guide-card:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+  }
+
+  .guide-img {
+    width: 100%;
+    height: 170px;
+    object-fit: cover;
+  }
+
+  .guide-body {
+    padding: 1.125rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    flex: 1;
+  }
+
+  .guide-title {
+    font-size: 1.0625rem;
+    margin: 0;
+    line-height: 1.35;
+  }
+
+  .guide-excerpt {
+    font-size: 0.875rem;
+    color: var(--color-text-muted);
+    margin: 0;
+    flex: 1;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .guide-read-link {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--color-accent-dark);
+    margin-top: auto;
+  }
+
+  /* About strip */
+  .about-strip {
+    background: var(--color-accent-light);
+    border-top: 1px solid #ddd6fe;
+  }
+
+  .about-strip-inner {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    align-items: start;
+  }
+
+  .about-strip h2 { margin-bottom: 1rem; }
+  .about-strip p { color: var(--color-text-muted); margin-bottom: 1.5rem; line-height: 1.7; }
+
+  .about-bullets {
+    display: flex;
+    flex-direction: column;
+    gap: 0.875rem;
+  }
+
+  .about-bullet {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.6rem;
+  }
+
+  .about-bullet svg {
+    color: var(--color-accent-dark);
+    flex-shrink: 0;
+    margin-top: 0.15rem;
+  }
+
+  .about-bullet p {
+    font-size: 0.9375rem;
+    margin: 0;
+    line-height: 1.5;
+    color: var(--color-text);
+  }
+
+  @media (max-width: 768px) {
+    .about-strip-inner {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+  }
+</style>

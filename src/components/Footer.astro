@@ -1,0 +1,192 @@
+---
+const year = new Date().getFullYear();
+
+const footerLinks = {
+  Reviews: [
+    { label: 'Pheromone Perfumes', href: '/category/pheromone-perfumes/' },
+    { label: 'Pheromone Oils', href: '/category/pheromone-oils/' },
+    { label: 'For Men', href: '/category/pheromones-for-men/' },
+  ],
+  'Best Lists': [
+    { label: 'Best Colognes for Men', href: '/best/best-pheromone-colognes-for-men/' },
+    { label: 'Best for Women', href: '/best/best-pheromone-perfumes-for-women/' },
+  ],
+  Guides: [
+    { label: 'All Guides', href: '/guides/' },
+    { label: 'How Pheromones Work', href: '/guides/how-pheromones-work/' },
+    { label: 'Buyer\'s Guide', href: '/guides/pheromone-buying-guide/' },
+  ],
+  Trust: [
+    { label: 'About Us', href: '/about/' },
+    { label: 'Editorial Policy', href: '/editorial-policy/' },
+    { label: 'Affiliate Disclosure', href: '/affiliate-disclosure/' },
+    { label: 'Privacy Policy', href: '/privacy-policy/' },
+    { label: 'Contact', href: '/contact/' },
+  ],
+};
+---
+
+<footer class="site-footer">
+  <div class="container footer-inner">
+    <div class="footer-brand">
+      <a href="/" class="footer-logo">
+        <span class="logo-icon">✦</span>
+        <span>Phero<strong>Guide</strong></span>
+      </a>
+      <p class="footer-tagline">
+        Independent reviews &amp; comparisons of pheromone-infused fragrances. We help you decide — never pressure you.
+      </p>
+      <p class="footer-disclosure">
+        <strong>Affiliate disclosure:</strong> We may earn a commission when you buy through our links, at no extra cost to you.
+        <a href="/affiliate-disclosure/">Learn more</a>.
+      </p>
+    </div>
+
+    <nav class="footer-nav" aria-label="Footer navigation">
+      {Object.entries(footerLinks).map(([section, links]) => (
+        <div class="footer-nav-col">
+          <h3 class="footer-nav-heading">{section}</h3>
+          <ul>
+            {links.map((link) => (
+              <li><a href={link.href}>{link.label}</a></li>
+            ))}
+          </ul>
+        </div>
+      ))}
+    </nav>
+  </div>
+
+  <div class="footer-bottom">
+    <div class="container footer-bottom-inner">
+      <p>&copy; {year} PheroGuide. All rights reserved.</p>
+      <p class="disclaimer">
+        *These statements have not been evaluated by the FDA. Product reviews reflect editorial opinion based on testing and research. Individual results may vary.
+      </p>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    background: #111110;
+    color: #c8c4bc;
+    margin-top: 4rem;
+  }
+
+  .footer-inner {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 3rem;
+    padding-block: 3rem;
+  }
+
+  .footer-brand {
+    max-width: 320px;
+  }
+
+  .footer-logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: #fff;
+    text-decoration: none;
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+  }
+
+  .footer-logo .logo-icon {
+    color: var(--color-accent);
+  }
+
+  .footer-tagline {
+    font-size: 0.9rem;
+    line-height: 1.6;
+    color: #a09c94;
+    margin-bottom: 1rem;
+  }
+
+  .footer-disclosure {
+    font-size: 0.8125rem;
+    color: #7a7670;
+    line-height: 1.5;
+  }
+
+  .footer-disclosure a {
+    color: #a09c94;
+  }
+
+  .footer-nav {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+  }
+
+  .footer-nav-heading {
+    font-family: var(--font-sans);
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #fff;
+    margin-bottom: 0.75rem;
+  }
+
+  .footer-nav ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .footer-nav li {
+    margin-bottom: 0.4rem;
+  }
+
+  .footer-nav a {
+    color: #a09c94;
+    text-decoration: none;
+    font-size: 0.875rem;
+    transition: color 0.15s;
+  }
+
+  .footer-nav a:hover {
+    color: #fff;
+  }
+
+  .footer-bottom {
+    border-top: 1px solid #2a2926;
+    padding-block: 1.25rem;
+  }
+
+  .footer-bottom-inner {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .footer-bottom p {
+    font-size: 0.8125rem;
+    color: #6b6760;
+    margin: 0;
+  }
+
+  .disclaimer {
+    max-width: 640px;
+    line-height: 1.5;
+  }
+
+  @media (max-width: 900px) {
+    .footer-inner {
+      grid-template-columns: 1fr;
+    }
+    .footer-brand { max-width: 100%; }
+    .footer-nav {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (max-width: 480px) {
+    .footer-nav {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+</style>

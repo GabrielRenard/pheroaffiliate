@@ -1,0 +1,283 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import ComparisonTable from '../../components/ComparisonTable.astro';
+import ProductCard from '../../components/ProductCard.astro';
+import FAQAccordion from '../../components/FAQAccordion.astro';
+import AuthorBox from '../../components/AuthorBox.astro';
+import PortableTextRenderer from '../../components/PortableTextRenderer.astro';
+import { sanityFetch } from '../../lib/sanity';
+import { comparisonQuery, allComparisonSlugsQuery } from '../../lib/queries';
+import { buildMetadata } from '../../utils/metadata';
+import {
+  buildBreadcrumbSchema,
+  buildArticleSchema,
+  buildFaqSchema,
+} from '../../utils/structuredData';
+import type { Comparison } from '../../types';
+
+export async function getStaticPaths() {
+  const slugs = await sanityFetch<Array<{ slug: string }>>(allComparisonSlugsQuery);
+  return slugs.map((s) => ({ params: { slug: s.slug } }));
+}
+
+const { slug } = Astro.params;
+const comparison = await sanityFetch<Comparison>(comparisonQuery, { slug });
+
+if (!comparison) return Astro.redirect('/404');
+
+const meta = buildMetadata({
+  title: comparison.seoTitle || comparison.title,
+  description:
+    comparison.seoDescription ||
+    comparison.intro ||
+    `We compare ${comparison.products.map((p) => p.name).join(' vs. ')} side by side so you can make the right call.`,
+  path: `/compare/${slug}/`,
+  seoTitle: comparison.seoTitle,
+  seoDescription: comparison.seoDescription,
+  ogImageUrl: comparison.ogImageUrl,
+  canonicalUrl: comparison.canonicalUrl,
+  noindex: comparison.noindex,
+  type: 'article',
+  publishedAt: comparison.publishedAt,
+  updatedAt: comparison.updatedAt,
+});
+
+const schemas = [
+  buildBreadcrumbSchema([
+    { name: 'Home', url: '/' },
+    { name: 'Comparisons', url: '/compare/pherazone-vs-alpha-dream/' },
+    { name: comparison.title, url: `/compare/${slug}/` },
+  ]),
+  buildArticleSchema({
+    title: comparison.title,
+    excerpt: comparison.intro,
+    slug: `/compare/${slug}/`,
+    authorName: comparison.author?.name,
+    publishedAt: comparison.publishedAt,
+    updatedAt: comparison.updatedAt,
+  }),
+  buildFaqSchema(comparison.faqs || []),
+].filter(Boolean) as object[];
+---
+
+<BaseLayout meta={meta} schemas={schemas}>
+  <div class="compare-page">
+    <div class="container">
+      <Breadcrumbs
+        items={[
+          { name: 'Home', href: '/' },
+          { name: 'Comparisons', href: '/compare/pherazone-vs-alpha-dream/' },
+          { name: comparison.title },
+        ]}
+      />
+
+      <header class="compare-header">
+        <span class="compare-label">Side-by-Side Comparison</span>
+        <h1>{comparison.title}</h1>
+        {comparison.intro && <p class="compare-intro">{comparison.intro}</p>}
+        {comparison.author && <AuthorBox author={comparison.author} reviewedAt={comparison.updatedAt} />}
+      </header>
+
+      <!-- Comparison cards preview -->
+      <div class="compare-products-preview">
+        {comparison.products.map((product) => (
+          <div class="compare-preview-card">
+            {product.featuredImageUrl && (
+              <img src={product.featuredImageUrl} alt={product.name} class="preview-img" loading="lazy" />
+            )}
+            <div class="preview-info">
+              <a href={`/products/${product.slug}/`} class="preview-name">{product.name}</a>
+              <p class="preview-brand">{product.brand}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div class="compare-vs-divider" aria-hidden="true">VS</div>
+
+      <!-- Comparison table -->
+      <section aria-labelledby="table-heading">
+        <h2 id="table-heading" class="sr-only">Comparison Table</h2>
+        <ComparisonTable products={comparison.products} />
+      </section>
+
+      <!-- Verdict -->
+      {comparison.verdict && (
+        <section class="verdict-section" aria-labelledby="verdict-heading">
+          <h2 id="verdict-heading">Our Verdict</h2>
+          {comparison.verdict.summary && (
+            <p class="verdict-text">{comparison.verdict.summary}</p>
+          )}
+          <div class="verdict-picks">
+            {comparison.verdict.winner && (
+              <div class="verdict-pick verdict-pick--winner">
+                <span class="verdict-pick-label">Overall Winner</span>
+                <ProductCard product={comparison.verdict.winner} showCta />
+              </div>
+            )}
+            {comparison.verdict.bestValue && comparison.verdict.bestValue._id !== comparison.verdict.winner?._id && (
+              <div class="verdict-pick verdict-pick--value">
+                <span class="verdict-pick-label">Best Value</span>
+                <ProductCard product={comparison.verdict.bestValue} showCta />
+              </div>
+            )}
+          </div>
+        </section>
+      )}
+
+      <!-- Full body -->
+      {comparison.body && Array.isArray(comparison.body) && comparison.body.length > 0 && (
+        <section class="compare-body">
+          <PortableTextRenderer content={comparison.body as any[]} />
+        </section>
+      )}
+
+      <!-- FAQs -->
+      {comparison.faqs && comparison.faqs.length > 0 && (
+        <FAQAccordion faqs={comparison.faqs} />
+      )}
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .compare-page {
+    padding-block: 2rem 4rem;
+  }
+
+  .compare-header {
+    margin-bottom: 2rem;
+  }
+
+  .compare-label {
+    display: inline-block;
+    background: #fef3c7;
+    color: #78350f;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 0.25rem 0.75rem;
+    border-radius: 999px;
+    margin-bottom: 0.75rem;
+  }
+
+  .compare-header h1 {
+    margin-bottom: 0.5rem;
+  }
+
+  .compare-intro {
+    font-size: 1.0625rem;
+    color: var(--color-text-muted);
+    line-height: 1.7;
+    max-width: 640px;
+    margin: 0;
+  }
+
+  .compare-products-preview {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 0.5rem;
+    justify-content: center;
+  }
+
+  .compare-preview-card {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: 0.75rem 1rem;
+    min-width: 200px;
+    flex: 1;
+    max-width: 300px;
+  }
+
+  .preview-img {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: var(--radius);
+    flex-shrink: 0;
+    border: 1px solid var(--color-border);
+  }
+
+  .preview-name {
+    font-weight: 700;
+    font-size: 0.9375rem;
+    color: var(--color-text);
+    text-decoration: none;
+    display: block;
+  }
+
+  .preview-name:hover { color: var(--color-accent-dark); }
+
+  .preview-brand {
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
+    margin: 0.15rem 0 0;
+  }
+
+  .compare-vs-divider {
+    text-align: center;
+    font-size: 1.5rem;
+    font-weight: 900;
+    color: var(--color-text-muted);
+    margin: 0.5rem 0 1.5rem;
+    letter-spacing: 0.1em;
+  }
+
+  /* Verdict */
+  .verdict-section {
+    margin: 2.5rem 0;
+  }
+
+  .verdict-text {
+    font-size: 1.05rem;
+    color: var(--color-text-muted);
+    line-height: 1.7;
+    margin-bottom: 1.5rem;
+    max-width: 640px;
+  }
+
+  .verdict-picks {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .verdict-pick {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .verdict-pick-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 0.2rem 0.6rem;
+    border-radius: 999px;
+    width: fit-content;
+  }
+
+  .verdict-pick--winner .verdict-pick-label {
+    background: var(--color-accent-light);
+    color: var(--color-accent-dark);
+  }
+
+  .verdict-pick--value .verdict-pick-label {
+    background: #fef3c7;
+    color: #78350f;
+  }
+
+  .compare-body {
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--color-border);
+  }
+</style>

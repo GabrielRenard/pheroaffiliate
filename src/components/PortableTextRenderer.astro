@@ -1,0 +1,19 @@
+---
+import { portableTextToHtml } from '../lib/portableText';
+
+export interface Props {
+  content: unknown[];
+  class?: string;
+}
+
+const { content, class: className = '' } = Astro.props;
+
+let html = '';
+if (content && Array.isArray(content) && content.length > 0) {
+  html = portableTextToHtml(content as any);
+}
+---
+
+{html && (
+  <div class={`prose ${className}`} set:html={html} />
+)}

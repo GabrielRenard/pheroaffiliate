@@ -1,0 +1,23 @@
+{
+  "name": "pheroaffiliate",
+  "type": "module",
+  "version": "0.1.0",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "@astrojs/sitemap": "^3.1.0",
+    "@sanity/astro": "^1.1.0",
+    "@sanity/image-url": "^1.0.2",
+    "@portabletext/to-html": "^2.0.2",
+    "astro": "^4.5.0",
+    "sanity": "^3.30.0"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.5.9",
+    "typescript": "^5.4.2"
+  }
+}

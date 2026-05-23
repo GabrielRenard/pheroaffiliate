@@ -1,0 +1,224 @@
+---
+import StarRating from './StarRating.astro';
+import type { ProductCard as ProductCardType } from '../types';
+
+export interface Props {
+  product: ProductCardType;
+  showCta?: boolean;
+  featured?: boolean;
+}
+
+const { product, showCta = true, featured = false } = Astro.props;
+
+const typeLabels: Record<string, string> = {
+  edp: 'Eau de Parfum',
+  edt: 'Eau de Toilette',
+  oil: 'Oil / Concentrate',
+  spray_unscented: 'Unscented Spray',
+  spray_scented: 'Scented Spray',
+  cologne: 'Cologne',
+  body_lotion: 'Body Lotion',
+};
+
+const audienceLabels: Record<string, string> = {
+  men: 'For Men',
+  women: 'For Women',
+  unisex: 'Unisex',
+};
+---
+
+<article class={`product-card ${featured ? 'product-card--featured' : ''}`}>
+  <a href={`/products/${product.slug}/`} class="card-image-link" aria-hidden="true" tabindex="-1">
+    {product.featuredImageUrl ? (
+      <img
+        src={product.featuredImageUrl}
+        alt={product.featuredImageAlt || product.name}
+        class="card-image"
+        loading="lazy"
+        width="400"
+        height="300"
+      />
+    ) : (
+      <div class="card-image-placeholder" aria-hidden="true">
+        <span>✦</span>
+      </div>
+    )}
+  </a>
+
+  <div class="card-body">
+    <div class="card-meta">
+      {product.productType && (
+        <span class="badge badge-type">{typeLabels[product.productType] || product.productType}</span>
+      )}
+      {product.intendedAudience && (
+        <span class="badge badge-audience">{audienceLabels[product.intendedAudience] || product.intendedAudience}</span>
+      )}
+    </div>
+
+    <h3 class="card-title">
+      <a href={`/products/${product.slug}/`}>{product.name}</a>
+    </h3>
+    <p class="card-brand">{product.brand}</p>
+
+    {product.reviewScore !== undefined && product.reviewScore !== null && (
+      <StarRating score={product.reviewScore} size="sm" />
+    )}
+
+    {product.summary && (
+      <p class="card-summary">{product.summary}</p>
+    )}
+
+    <div class="card-footer">
+      {product.price && (
+        <span class="card-price">~${product.price}</span>
+      )}
+      {showCta && (
+        <a
+          href={product.affiliateUrl}
+          class="btn btn-primary card-cta"
+          rel="nofollow noopener noreferrer"
+          target="_blank"
+        >
+          Check Price →
+        </a>
+      )}
+    </div>
+  </div>
+</article>
+
+<style>
+  .product-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: box-shadow 0.2s, transform 0.2s;
+  }
+
+  .product-card:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+  }
+
+  .product-card--featured {
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 1px var(--color-accent);
+  }
+
+  .card-image-link {
+    display: block;
+    aspect-ratio: 4/3;
+    overflow: hidden;
+    background: #f5f3ef;
+  }
+
+  .card-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+  }
+
+  .product-card:hover .card-image {
+    transform: scale(1.03);
+  }
+
+  .card-image-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    color: #c8c4bc;
+  }
+
+  .card-body {
+    padding: 1.125rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    flex: 1;
+  }
+
+  .card-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+  }
+
+  .badge {
+    display: inline-block;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.2rem 0.5rem;
+    border-radius: 999px;
+  }
+
+  .badge-type {
+    background: var(--color-accent-light);
+    color: var(--color-accent-dark);
+  }
+
+  .badge-audience {
+    background: #f0fdf4;
+    color: #166534;
+  }
+
+  .card-title {
+    font-size: 1.0625rem;
+    margin: 0;
+    line-height: 1.3;
+  }
+
+  .card-title a {
+    color: var(--color-text);
+    text-decoration: none;
+  }
+
+  .card-title a:hover {
+    color: var(--color-accent-dark);
+  }
+
+  .card-brand {
+    font-size: 0.8125rem;
+    color: var(--color-text-muted);
+    margin: 0;
+    font-weight: 500;
+  }
+
+  .card-summary {
+    font-size: 0.875rem;
+    color: var(--color-text-muted);
+    line-height: 1.55;
+    margin: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: auto;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--color-border);
+  }
+
+  .card-price {
+    font-weight: 700;
+    color: var(--color-text);
+    font-size: 1rem;
+  }
+
+  .card-cta {
+    padding: 0.45rem 1rem;
+    font-size: 0.8125rem;
+  }
+</style>

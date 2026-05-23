@@ -1,0 +1,35 @@
+---
+import ProductCard from './ProductCard.astro';
+import type { ProductCard as ProductCardType } from '../types';
+
+export interface Props {
+  products?: ProductCardType[];
+  title?: string;
+}
+
+const { products, title = 'You Might Also Like' } = Astro.props;
+
+if (!products || products.length === 0) return null;
+---
+
+<section class="related-section" aria-labelledby="related-heading">
+  <h2 id="related-heading" class="related-heading">{title}</h2>
+  <div class="grid-auto-3">
+    {products.map((product) => (
+      <ProductCard product={product} />
+    ))}
+  </div>
+</section>
+
+<style>
+  .related-section {
+    margin-top: 3rem;
+    padding-top: 2.5rem;
+    border-top: 1px solid var(--color-border);
+  }
+
+  .related-heading {
+    margin-bottom: 1.5rem;
+    font-size: 1.5rem;
+  }
+</style>

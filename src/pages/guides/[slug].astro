@@ -1,0 +1,219 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import FAQAccordion from '../../components/FAQAccordion.astro';
+import AuthorBox from '../../components/AuthorBox.astro';
+import RelatedContent from '../../components/RelatedContent.astro';
+import PortableTextRenderer from '../../components/PortableTextRenderer.astro';
+import { sanityFetch } from '../../lib/sanity';
+import { guideQuery, allGuideSlugsQuery } from '../../lib/queries';
+import { buildMetadata } from '../../utils/metadata';
+import {
+  buildBreadcrumbSchema,
+  buildArticleSchema,
+  buildFaqSchema,
+} from '../../utils/structuredData';
+import type { Guide } from '../../types';
+
+export async function getStaticPaths() {
+  const slugs = await sanityFetch<Array<{ slug: string }>>(allGuideSlugsQuery);
+  return slugs.map((s) => ({ params: { slug: s.slug } }));
+}
+
+const { slug } = Astro.params;
+const guide = await sanityFetch<Guide>(guideQuery, { slug });
+
+if (!guide) return Astro.redirect('/404');
+
+const meta = buildMetadata({
+  title: guide.seoTitle || guide.title,
+  description: guide.seoDescription || guide.excerpt || `${guide.title} — a guide from PheroGuide.`,
+  path: `/guides/${slug}/`,
+  seoTitle: guide.seoTitle,
+  seoDescription: guide.seoDescription,
+  ogImageUrl: guide.ogImageUrl || guide.coverImageUrl,
+  canonicalUrl: guide.canonicalUrl,
+  noindex: guide.noindex,
+  type: 'article',
+  publishedAt: guide.publishedAt,
+  updatedAt: guide.updatedAt,
+});
+
+const schemas = [
+  buildBreadcrumbSchema([
+    { name: 'Home', url: '/' },
+    { name: 'Guides', url: '/guides/' },
+    { name: guide.title, url: `/guides/${slug}/` },
+  ]),
+  buildArticleSchema({
+    title: guide.title,
+    excerpt: guide.excerpt,
+    slug: `/guides/${slug}/`,
+    imageUrl: guide.coverImageUrl,
+    authorName: guide.author?.name,
+    publishedAt: guide.publishedAt,
+    updatedAt: guide.updatedAt,
+  }),
+  buildFaqSchema(guide.faqs || []),
+].filter(Boolean) as object[];
+---
+
+<BaseLayout meta={meta} schemas={schemas}>
+  <div class="guide-page">
+    <div class="container">
+      <div class="guide-layout">
+        <div class="guide-main">
+          <Breadcrumbs
+            items={[
+              { name: 'Home', href: '/' },
+              { name: 'Guides', href: '/guides/' },
+              { name: guide.title },
+            ]}
+          />
+
+          <header class="guide-header">
+            <span class="guide-label">Guide</span>
+            <h1>{guide.title}</h1>
+            {guide.excerpt && <p class="guide-excerpt">{guide.excerpt}</p>}
+            {guide.author && <AuthorBox author={guide.author} reviewedAt={guide.updatedAt || guide.publishedAt} />}
+          </header>
+
+          {guide.coverImageUrl && (
+            <div class="guide-cover-wrap">
+              <img
+                src={guide.coverImageUrl}
+                alt={guide.coverImageAlt || guide.title}
+                class="guide-cover"
+                loading="eager"
+              />
+            </div>
+          )}
+
+          {guide.body && Array.isArray(guide.body) && guide.body.length > 0 ? (
+            <PortableTextRenderer content={guide.body as any[]} />
+          ) : (
+            <p class="content-placeholder">Guide content coming soon.</p>
+          )}
+
+          {guide.faqs && guide.faqs.length > 0 && (
+            <FAQAccordion faqs={guide.faqs} />
+          )}
+        </div>
+
+        <!-- Sidebar TOC placeholder -->
+        <aside class="guide-sidebar" aria-label="On this page">
+          <div class="toc-card">
+            <p class="toc-heading">On This Page</p>
+            <nav aria-label="Table of contents">
+              <p class="toc-placeholder">Navigate between sections using the headings in the article.</p>
+            </nav>
+          </div>
+        </aside>
+      </div>
+
+      {guide.relatedProducts && guide.relatedProducts.length > 0 && (
+        <RelatedContent products={guide.relatedProducts} title="Products Mentioned in This Guide" />
+      )}
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .guide-page {
+    padding-block: 2rem 4rem;
+  }
+
+  .guide-layout {
+    display: grid;
+    grid-template-columns: 1fr 280px;
+    gap: 2.5rem;
+    align-items: flex-start;
+  }
+
+  .guide-header {
+    margin-bottom: 1.75rem;
+  }
+
+  .guide-label {
+    display: inline-block;
+    background: #f0fdf4;
+    color: #166534;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 0.25rem 0.75rem;
+    border-radius: 999px;
+    margin-bottom: 0.75rem;
+  }
+
+  .guide-header h1 {
+    margin-bottom: 0.5rem;
+  }
+
+  .guide-excerpt {
+    font-size: 1.1rem;
+    color: var(--color-text-muted);
+    line-height: 1.7;
+    max-width: 640px;
+    margin: 0;
+  }
+
+  .guide-cover-wrap {
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    margin-bottom: 2rem;
+    border: 1px solid var(--color-border);
+    max-height: 400px;
+  }
+
+  .guide-cover {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .content-placeholder {
+    color: var(--color-text-muted);
+    font-style: italic;
+  }
+
+  /* Sidebar */
+  .guide-sidebar {
+    position: sticky;
+    top: 100px;
+  }
+
+  .toc-card {
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    padding: 1.125rem;
+  }
+
+  .toc-heading {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--color-text-muted);
+    margin: 0 0 0.5rem;
+  }
+
+  .toc-placeholder {
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+    margin: 0;
+    line-height: 1.55;
+  }
+
+  @media (max-width: 900px) {
+    .guide-layout {
+      grid-template-columns: 1fr;
+    }
+    .guide-sidebar {
+      position: static;
+      order: -1;
+    }
+  }
+</style>

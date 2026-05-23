@@ -1,0 +1,237 @@
+---
+import Navigation from '../components/Navigation.astro';
+import Footer from '../components/Footer.astro';
+import DisclosureBanner from '../components/DisclosureBanner.astro';
+import type { ResolvedMetadata } from '../utils/metadata';
+
+export interface Props {
+  meta: ResolvedMetadata;
+  schemas?: object[];
+  breadcrumbs?: Array<{ name: string; url: string }>;
+}
+
+const { meta, schemas = [], breadcrumbs } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="generator" content={Astro.generator} />
+
+    <title>{meta.title}</title>
+    <meta name="description" content={meta.description} />
+    <link rel="canonical" href={meta.canonical} />
+
+    {meta.noindex && <meta name="robots" content="noindex, nofollow" />}
+
+    <!-- Open Graph -->
+    <meta property="og:type" content={meta.ogType} />
+    <meta property="og:title" content={meta.ogTitle} />
+    <meta property="og:description" content={meta.ogDescription} />
+    <meta property="og:image" content={meta.ogImage} />
+    <meta property="og:url" content={meta.canonical} />
+    <meta property="og:site_name" content="PheroGuide" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content={meta.twitterCard} />
+    <meta name="twitter:title" content={meta.ogTitle} />
+    <meta name="twitter:description" content={meta.ogDescription} />
+    <meta name="twitter:image" content={meta.ogImage} />
+
+    {meta.articlePublishedTime && (
+      <meta property="article:published_time" content={meta.articlePublishedTime} />
+    )}
+    {meta.articleModifiedTime && (
+      <meta property="article:modified_time" content={meta.articleModifiedTime} />
+    )}
+
+    <!-- Structured data -->
+    {schemas.map((schema) => (
+      <script type="application/ld+json" set:html={JSON.stringify(schema)} />
+    ))}
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  </head>
+  <body>
+    <DisclosureBanner />
+    <Navigation />
+    <main id="main-content">
+      <slot />
+    </main>
+    <Footer />
+  </body>
+</html>
+
+<style is:global>
+  :root {
+    --color-bg: #fafaf8;
+    --color-surface: #ffffff;
+    --color-border: #e8e5e0;
+    --color-text: #1a1a18;
+    --color-text-muted: #6b6860;
+    --color-accent: #8b5cf6;
+    --color-accent-dark: #6d28d9;
+    --color-accent-light: #ede9fe;
+    --color-gold: #d97706;
+    --color-green: #059669;
+    --color-red: #dc2626;
+
+    --font-sans: 'Inter', system-ui, sans-serif;
+    --font-serif: 'Playfair Display', Georgia, serif;
+
+    --radius: 0.5rem;
+    --radius-lg: 1rem;
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+    --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.1);
+
+    --max-w: 1200px;
+    --max-w-prose: 720px;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    font-family: var(--font-sans);
+    background: var(--color-bg);
+    color: var(--color-text);
+    line-height: 1.65;
+    margin: 0;
+    padding: 0;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  img { max-width: 100%; height: auto; display: block; }
+
+  a { color: var(--color-accent-dark); }
+  a:hover { color: var(--color-accent); }
+
+  /* Container utility */
+  .container {
+    max-width: var(--max-w);
+    margin-inline: auto;
+    padding-inline: 1.25rem;
+  }
+
+  /* Typography */
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-serif);
+    line-height: 1.25;
+    color: var(--color-text);
+    margin-top: 0;
+  }
+
+  h1 { font-size: clamp(1.8rem, 4vw, 2.75rem); }
+  h2 { font-size: clamp(1.4rem, 3vw, 2rem); }
+  h3 { font-size: clamp(1.15rem, 2vw, 1.5rem); }
+  h4 { font-size: 1.15rem; }
+
+  p { margin-top: 0; }
+
+  /* Prose area */
+  .prose {
+    max-width: var(--max-w-prose);
+  }
+  .prose h2 { margin-top: 2rem; margin-bottom: 0.75rem; }
+  .prose h3 { margin-top: 1.5rem; margin-bottom: 0.5rem; }
+  .prose p { margin-bottom: 1.25rem; color: var(--color-text); }
+  .prose ul, .prose ol { padding-left: 1.5rem; margin-bottom: 1.25rem; }
+  .prose li { margin-bottom: 0.4rem; }
+  .prose a { font-weight: 500; }
+  .prose blockquote {
+    border-left: 3px solid var(--color-accent);
+    margin: 1.5rem 0;
+    padding: 0.75rem 1.25rem;
+    background: var(--color-accent-light);
+    border-radius: 0 var(--radius) var(--radius) 0;
+    font-style: italic;
+  }
+  .prose figure { margin: 1.5rem 0; }
+  .prose figure img { border-radius: var(--radius); }
+  .prose figcaption { font-size: 0.85rem; color: var(--color-text-muted); margin-top: 0.5rem; text-align: center; }
+
+  /* Buttons */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-family: var(--font-sans);
+    font-weight: 600;
+    font-size: 0.9375rem;
+    padding: 0.7rem 1.5rem;
+    border-radius: var(--radius);
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.15s ease;
+    white-space: nowrap;
+  }
+  .btn-primary {
+    background: var(--color-accent);
+    color: #fff;
+  }
+  .btn-primary:hover {
+    background: var(--color-accent-dark);
+    color: #fff;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(109, 40, 217, 0.3);
+  }
+  .btn-outline {
+    background: transparent;
+    color: var(--color-accent-dark);
+    border: 2px solid var(--color-accent);
+  }
+  .btn-outline:hover {
+    background: var(--color-accent-light);
+    color: var(--color-accent-dark);
+  }
+  .btn-lg { padding: 0.875rem 2rem; font-size: 1.0625rem; }
+
+  /* Section spacing */
+  .section { padding-block: 4rem; }
+  .section-sm { padding-block: 2.5rem; }
+
+  /* Screen reader only */
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  /* Grid helpers */
+  .grid-auto-3 {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+  }
+  .grid-auto-4 {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 1.25rem;
+  }
+
+  @media (max-width: 640px) {
+    .section { padding-block: 2.5rem; }
+  }
+</style>
