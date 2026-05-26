@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500">
+  <defs>
+    <style>@import url('https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;1,6..72,300&amp;display=swap');</style>
+  </defs>
+  <rect width="500" height="500" fill="#f1ece1"/>
+  <text
+    x="250" y="224"
+    font-family="'Newsreader', Georgia, 'Times New Roman', serif"
+    font-weight="400"
+    font-size="88"
+    letter-spacing="-1"
+    fill="#1c1916"
+    text-anchor="middle"
+  >Pheromone</text>
+  <text
+    x="250" y="315"
+    font-family="'Newsreader', Georgia, 'Times New Roman', serif"
+    font-style="italic"
+    font-weight="300"
+    font-size="100"
+    fill="#1c1916"
+    text-anchor="middle"
+  >Scout</text>
+  <circle cx="400" cy="295" r="12" fill="#b8543a"/>
+</svg>

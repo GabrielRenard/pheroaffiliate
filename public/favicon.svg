@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <style>@import url('https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400&amp;display=swap');</style>
+  </defs>
+  <rect width="64" height="64" rx="10" fill="#f1ece1"/>
+  <text
+    x="29" y="49"
+    font-family="'Newsreader', Georgia, 'Times New Roman', serif"
+    font-weight="400"
+    font-size="48"
+    fill="#1c1916"
+    text-anchor="middle"
+  >P</text>
+  <circle cx="51" cy="50" r="7" fill="#b8543a"/>
+</svg>
